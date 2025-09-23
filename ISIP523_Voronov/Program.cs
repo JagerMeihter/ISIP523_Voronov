@@ -46,6 +46,7 @@ class Program
 
     static void Main(string[] args)
     {
+
         bool running = true;
 
         while (running)
@@ -87,8 +88,8 @@ class Program
             }
         }
     }
-    
-    // Метод для добавления нового товара
+
+    // Добавить новый товар
     static void AddProduct()
     {
         try
@@ -96,44 +97,121 @@ class Program
             Console.Write("Введите ID товара: ");
             int productId = int.Parse(Console.ReadLine());
 
+            // Проверяем, не существует ли уже товар с таким ID
+            if (products.Any(p => p.ProductID == productId))
+            {
+                Console.WriteLine(" Товар с таким ID уже существует!");
+                return;
+            }
+
             Console.Write("Введите название товара: ");
             string name = Console.ReadLine();
 
+            // Проверка на пустое название
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                Console.WriteLine(" Название товара не может быть пустым!");
+                return;
+            }
+
             Console.Write("Введите цену товара: ");
             decimal price = decimal.Parse(Console.ReadLine());
+            if (price < 0)
+            {
+                Console.WriteLine(" Цена не может быть отрицательной!");
+                return;
+            }
 
             Console.Write("Введите количество: ");
             int quantity = int.Parse(Console.ReadLine());
-            bool haveStorage = true;
-            if (quantity <= 0) {
-                 haveStorage = false;
+            if (quantity < 0)
+            {
+                Console.WriteLine(" Количество не может быть отрицательным!");
+                return;
             }
 
-            
-            Console.Write("Введите категорию товара: " +
-                "1 -  Выпечка\n" +
-                "2 -  Молочные продукты\n" +
-                "3 -  Рыба и Мясо\n" +
-                "4 -  Сладости\n" +
-                "5 -  Фрукты\n" +
-                "6 -  Овощи \n"
-                );
-            ProductCategory category = (ProductCategory)int.Parse(Console.ReadLine());
+            bool haveStorage = quantity > 0;
 
+            Console.Write("Введите категорию товара: \n" +
+                "1 - Выпечка\n" +
+                "2 - Молочные продукты\n" +
+                "3 - Рыба и Мясо\n" +
+                "4 - Сладости\n" +
+                "5 - Фрукты\n" +
+                "6 - Овощи\n" +
+                "Ваш выбор: ");
 
-            Product NewProduct = new Product(productId,name,price,quantity, category,haveStorage);
-            Console.WriteLine("Товар успешно добавлен!");
+            int categoryInput = int.Parse(Console.ReadLine());
+            if (categoryInput < 1 || categoryInput > 6)
+            {
+                Console.WriteLine(" Неверная категория! Выберите от 1 до 6.");
+                return;
+            }
+
+            ProductCategory category = (ProductCategory)(categoryInput - 1); // -1 потому что enum начинается с 0
+
+            Product newProduct = new Product(productId, name, price, quantity, category, haveStorage);
+            products.Add(newProduct);
+            Console.WriteLine(" Товар успешно добавлен!");
         }
         catch (FormatException)
         {
-            Console.WriteLine("Ошибка ввода! Проверьте правильность данных.");
+            Console.WriteLine(" Ошибка ввода! Проверьте правильность данных.");
         }
-        
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Произошла ошибка: {ex.Message}");
+        }
     }
 
+
+    //Удалить товар (по ID)
     static void RemoveProduct()
     {
-        
+        if (products.Count == 0)
+        {
+            Console.WriteLine("Список товаров пуст! Нечего удалять.");
+            return;
+        }
+
+        // Показываем все товары для удобства выбора
+        Console.WriteLine("\nТекущий список товаров:");
+        foreach (var product in products)
+        {
+            product.PrintInfo();
+        }
+
+        Console.Write("\nВведите ID товара для удаления: ");
+        if (int.TryParse(Console.ReadLine(), out int productId))
+        {
+            // Ищем товар по ID
+            Product productToRemove = products.Find(p => p.ProductID == productId);
+
+            if (productToRemove != null)
+            {
+                // Подтверждение удаления
+                Console.Write($"Вы уверены, что хотите удалить товар '{productToRemove.Name}' (ID: {productToRemove.ProductID})? (да/нет): ");
+                string confirmation = Console.ReadLine();
+
+                if (confirmation?.ToLower() == "да" || confirmation?.ToLower() == "yes")
+                {
+                    products.Remove(productToRemove);
+                    Console.WriteLine(" Товар успешно удален!");
+                }
+                else
+                {
+                    Console.WriteLine(" Удаление отменено.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Товар с таким ID не найден!");
+            }
+        }
+        else
+        {
+            Console.WriteLine(" Неверный формат ID! Введите целое число.");
+        }
     }
 
     static void SearchProducts()
