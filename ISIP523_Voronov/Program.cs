@@ -217,6 +217,27 @@ class Program
     static void SearchProducts()
     {
         
+
+        Console.Write("Введите название товара для поиска: ");
+        string searchName = Console.ReadLine();
+
+        bool found = false;
+
+        Console.WriteLine("\n=== РЕЗУЛЬТАТЫ ПОИСКА ===");
+        foreach (var product in products)
+        {
+            if (product.Name.ToLower().Contains(searchName.ToLower()))
+            {
+                product.PrintInfo();
+                Console.WriteLine("-------------------");
+                found = true;
+            }
+        }
+
+        if (!found)
+        {
+            Console.WriteLine("Товары с таким названием не найдены.");
+        }
     }
     static void DeliveryProducts()
     {
