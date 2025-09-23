@@ -36,7 +36,7 @@ class Product
     // Метод для вывода информации о товаре
     public void PrintInfo()
     {
-        Console.WriteLine($"ID: {ProductID}, Название: {Name}, Цена: {Price:C}, Количество: {Quantity} ,Категория товара:{ProductType}, Наличие на складе:{HaveStorage} ");
+        Console.WriteLine($"ID: {ProductID}, Название: {Name}, Цена: {Price: денег}, Количество: {Quantity} ,Категория товара:{ProductType}, Наличие на складе:{HaveStorage} ");
     }
 }
 
@@ -329,7 +329,80 @@ class Program
     }
     static void SellProducts()
     {
+        if (products.Count == 0 )
+        {
+            Console.WriteLine("Нечего продавать!");
+            return;
+        }
+        try
+        {
+            Console.WriteLine("\n Текущий список товаров: ");
+            foreach (var product in products)
+            {
+                product.PrintInfo();
+            }
+            Console.Write("\nВведите ID товара на продажу:");
+            int productId = int.Parse(Console.ReadLine());
 
+            Product productToSell = products.Find(p => p.ProductID == productId);
+            int ProductCount = productToSell.Quantity; //количество товара которое имеем
+
+            if (int.TryParse(Console.ReadLine(), out  productId))
+            {
+                Console.Write($"Осталось  {ProductCount}   {productToSell.Name} ");
+                if (productToSell != null)
+                {
+                    
+                    Console.Write($" Вы уверены, что хотите продать товар  {productToSell.Name} (ID: {productToSell.ProductID})  (да/нет): ");
+                    string confirmation = Console.ReadLine();
+
+
+                    Console.Write($"Введите количество   {productToSell.Name}  которое вы хотите продать");
+                    int ProductSellCount = int.Parse(Console.ReadLine()); //количество товара которое хотим продать
+                    if (ProductSellCount <= 0)
+                    {
+                        Console.WriteLine("Количество должно быть положительным числом!");
+                        return;
+                    }
+                    if (ProductSellCount > ProductCount)
+                    {
+                        Console.WriteLine("Недопустимое количество на складе нет столько товара!");
+                    }
+                    else
+                    {
+                        
+                    }
+                    decimal totalPrice = ProductSellCount * productToSell.Price;
+
+                    if (confirmation?.ToLower() == "да" || confirmation?.ToLower() == "yes")
+                    {
+                        ProductCount -= ProductSellCount;
+                        productToSell.HaveStorage = productToSell.Quantity > 0;
+
+                        Console.WriteLine($" Продажа завершена!");
+                        Console.WriteLine($"Остаток товара: {ProductCount} шт.");
+                        Console.WriteLine($"Выручка: {totalPrice : денег}");
+                    }
+                    else
+                    {
+                        Console.WriteLine(" В продаже отказано.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Товар с таким ID не найден!");
+                }
+            }
+            else
+            {
+                Console.WriteLine(" Неверный формат ID! Введите целое число.");
+            }
+
+        }
+        catch(FormatException)
+        {
+            Console.WriteLine("Ошибка ввода! Проверьте правильность данных.");
+        }
     }
 }
 
