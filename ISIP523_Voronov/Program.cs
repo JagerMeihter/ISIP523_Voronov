@@ -216,7 +216,11 @@ class Program
 
     static void SearchProducts()
     {
-        
+        if (products.Count == 0)
+        {
+            Console.WriteLine("Список товаров пуст!");
+            return;
+        }
 
         Console.Write("Введите название товара для поиска: ");
         string searchName = Console.ReadLine();
@@ -241,7 +245,87 @@ class Program
     }
     static void DeliveryProducts()
     {
+        if (products.Count == 0)
+        {
+            Console.WriteLine("Список товаров пуст! Нечего доставлять.");
+            return;
+        }
 
+        try
+        {
+            
+            Console.WriteLine("\nТекущий список товаров:");
+            foreach (var product in products)
+            {
+                product.PrintInfo();
+            }
+
+            Console.Write("\nВведите ID товара для доставки: ");
+            int productId = int.Parse(Console.ReadLine());
+
+            Product productToDeliver = products.Find(p => p.ProductID == productId);
+
+            if (productToDeliver != null)
+            {
+                Console.Write("Введите адрес доставки: ");
+                string address = Console.ReadLine();
+
+                // Проверка на пустой адрес
+                if (string.IsNullOrWhiteSpace(address))
+                {
+                    Console.WriteLine("Адрес не может быть пустым!");
+                    return;
+                }
+
+                Console.Write("Введите время доставки: ");
+                string deliveryTime = Console.ReadLine();
+
+                // Проверка на пустое время
+                if (string.IsNullOrWhiteSpace(deliveryTime))
+                {
+                    Console.WriteLine("Время доставки не может быть пустым!");
+                    return;
+                }
+
+                // Подтверждение доставки
+                Console.WriteLine($"\n=== ПОДТВЕРЖДЕНИЕ ДОСТАВКИ ===");
+                Console.WriteLine($"Товар: {productToDeliver.Name}");
+                Console.WriteLine($"Количество: {productToDeliver.Quantity} шт.");
+                Console.WriteLine($"Адрес: {address}");
+                Console.WriteLine($"Время: {deliveryTime}");
+                Console.Write($"\nПодтвердить доставку? (да/нет): ");
+
+                string confirmation = Console.ReadLine();
+
+                if (confirmation?.ToLower() == "да" || confirmation?.ToLower() == "yes")
+                {
+                    Console.WriteLine($"\n Доставка товара '{productToDeliver.Name}' назначена!");
+                    Console.WriteLine($" Адрес: {address}");
+                    Console.WriteLine($" Время: {deliveryTime}");
+                    Console.WriteLine($" Количество: {productToDeliver.Quantity} шт.");
+
+                    // Обновляем статус склада
+                    productToDeliver.HaveStorage = true;
+                    Console.WriteLine(" Статус склада обновлен: товар доступен на складе");
+                }
+                else
+                {
+                    Console.WriteLine(" Доставка отменена.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Товар с таким ID не найден!");
+            }
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Ошибка ввода! Проверьте правильность данных.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Произошла ошибка: {ex.Message}");
+        }
     }
     static void SellProducts()
     {
