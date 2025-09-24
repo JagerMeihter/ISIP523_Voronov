@@ -281,6 +281,16 @@ class Program
 
             if (productToDeliver != null)
             {
+                Console.Write($"Введите количество товара '{productToDeliver.Name}' для доставки: ");
+                int deliveryQuantity = int.Parse(Console.ReadLine());
+
+                // Проверка количества
+                if (deliveryQuantity <= 0)
+                {
+                    Console.WriteLine("Количество должно быть положительным числом!");
+                    return;
+                }
+
                 Console.Write("Введите адрес доставки: ");
                 string address = Console.ReadLine();
 
@@ -304,7 +314,8 @@ class Program
                 // Подтверждение доставки
                 Console.WriteLine($"\n=== ПОДТВЕРЖДЕНИЕ ДОСТАВКИ ===");
                 Console.WriteLine($"Товар: {productToDeliver.Name}");
-                Console.WriteLine($"Количество: {productToDeliver.Quantity} шт.");
+                Console.WriteLine($"Количество для доставки: {deliveryQuantity} шт.");
+                Console.WriteLine($"Текущее количество на складе: {productToDeliver.Quantity} шт.");
                 Console.WriteLine($"Адрес: {address}");
                 Console.WriteLine($"Время: {deliveryTime}");
                 Console.Write($"\nПодтвердить доставку? (да/нет): ");
@@ -313,13 +324,17 @@ class Program
 
                 if (confirmation?.ToLower() == "да" || confirmation?.ToLower() == "yes")
                 {
-                    Console.WriteLine($"\n Доставка товара '{productToDeliver.Name}' назначена!");
-                    Console.WriteLine($" Адрес: {address}");
-                    Console.WriteLine($" Время: {deliveryTime}");
-                    Console.WriteLine($" Количество: {productToDeliver.Quantity} шт.");
+                    // Увеличиваем количество товара на складе
+                    productToDeliver.Quantity += deliveryQuantity;
 
                     // Обновляем статус склада
-                    productToDeliver.HaveStorage = true;
+                    productToDeliver.HaveStorage = productToDeliver.Quantity > 0;
+
+                    Console.WriteLine($"\n Доставка товара '{productToDeliver.Name}' назначена!");
+                    Console.WriteLine($" Доставлено: {deliveryQuantity} шт.");
+                    Console.WriteLine($" Новое количество на складе: {productToDeliver.Quantity} шт.");
+                    Console.WriteLine($" Адрес: {address}");
+                    Console.WriteLine($" Время: {deliveryTime}");
                     Console.WriteLine(" Статус склада обновлен: товар доступен на складе");
                 }
                 else
