@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Linq;
 using static Product;
 
 class Product
@@ -11,11 +11,10 @@ class Product
     public decimal Price { get; set; }
     public int Quantity { get; set; }
     public bool HaveStorage { get; set; }
-
     public ProductCategory ProductType { get; set; }
-    // Конструктор для инициализации всех свойств
-    public Product(int productId, string name, decimal price, int quantity, ProductCategory Category , bool haveStorage)
 
+    // Конструктор для инициализации всех свойств
+    public Product(int productId, string name, decimal price, int quantity, ProductCategory Category, bool haveStorage)
     {
         ProductID = productId;
         Name = name;
@@ -23,9 +22,10 @@ class Product
         Quantity = quantity;
         HaveStorage = haveStorage;
         ProductType = Category;
-
     }
-    public enum ProductCategory{
+
+    public enum ProductCategory
+    {
         Bäckerei,
         Milchprodukte,
         Fisch_und_Fleisch,
@@ -36,17 +36,16 @@ class Product
     // Метод для вывода информации о товаре
     public void PrintInfo()
     {
-        Console.WriteLine($"ID: {ProductID}, Название: {Name}, Цена: {Price: денег}, Количество: {Quantity} ,Категория товара:{ProductType}, Наличие на складе:{HaveStorage} ");
+        Console.WriteLine($"ID: {ProductID}, Название: {Name}, Цена: {Price: денег}, Количество: {Quantity}, Категория товара: {ProductType}, Наличие на складе: {HaveStorage}");
     }
 }
 
 class Program
 {
     static List<Product> products = new List<Product>();
-
+    static int nextProductId = 1; // Счетчик для автоматической генерации ID
     static void Main(string[] args)
     {
-
         bool running = true;
 
         while (running)
@@ -89,20 +88,20 @@ class Program
         }
     }
 
+    // Метод для генерации уникального ID
+    static int GenerateProductId()
+    {
+        return nextProductId++;
+    }
+
     // Добавить новый товар
     static void AddProduct()
     {
         try
         {
-            Console.Write("Введите ID товара: ");
-            int productId = int.Parse(Console.ReadLine());
-
-            // Проверяем, не существует ли уже товар с таким ID
-            if (products.Any(p => p.ProductID == productId))
-            {
-                Console.WriteLine(" Товар с таким ID уже существует!");
-                return;
-            }
+            // Автоматическая генерация ID
+            int productId = GenerateProductId();
+            Console.WriteLine($"Автоматически сгенерированный ID товара: {productId}");
 
             Console.Write("Введите название товара: ");
             string name = Console.ReadLine();
@@ -111,6 +110,7 @@ class Program
             if (string.IsNullOrWhiteSpace(name))
             {
                 Console.WriteLine(" Название товара не может быть пустым!");
+                nextProductId--; // Откатываем счетчик, так как товар не был добавлен
                 return;
             }
 
@@ -119,6 +119,7 @@ class Program
             if (price < 0)
             {
                 Console.WriteLine(" Цена не может быть отрицательной!");
+                nextProductId--; // Откатываем счетчик
                 return;
             }
 
@@ -127,6 +128,7 @@ class Program
             if (quantity < 0)
             {
                 Console.WriteLine(" Количество не может быть отрицательным!");
+                nextProductId--; // Откатываем счетчик
                 return;
             }
 
@@ -145,10 +147,11 @@ class Program
             if (categoryInput < 1 || categoryInput > 6)
             {
                 Console.WriteLine(" Неверная категория! Выберите от 1 до 6.");
+                nextProductId--; // Откатываем счетчик
                 return;
             }
 
-            ProductCategory category = (ProductCategory)(categoryInput - 1); // -1 потому что enum начинается с 0
+            ProductCategory category = (ProductCategory)(categoryInput - 1);
 
             Product newProduct = new Product(productId, name, price, quantity, category, haveStorage);
             products.Add(newProduct);
@@ -157,15 +160,16 @@ class Program
         catch (FormatException)
         {
             Console.WriteLine(" Ошибка ввода! Проверьте правильность данных.");
+            nextProductId--; // Откатываем счетчик при ошибке
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Произошла ошибка: {ex.Message}");
+            nextProductId--; // Откатываем счетчик при ошибке
         }
     }
 
-
-    //Удалить товар (по ID)
+    // Удалить товар (по ID)
     static void RemoveProduct()
     {
         if (products.Count == 0)
@@ -197,6 +201,16 @@ class Program
                 {
                     products.Remove(productToRemove);
                     Console.WriteLine(" Товар успешно удален!");
+
+                    // Если удаленный товар был с максимальным ID, можно пересчитать nextProductId
+                    if (products.Count == 0)
+                    {
+                        nextProductId = 1;
+                    }
+                    else
+                    {
+                        nextProductId = products.Max(p => p.ProductID) + 1;
+                    }
                 }
                 else
                 {
@@ -243,6 +257,7 @@ class Program
             Console.WriteLine("Товары с таким названием не найдены.");
         }
     }
+
     static void DeliveryProducts()
     {
         if (products.Count == 0)
@@ -253,7 +268,6 @@ class Program
 
         try
         {
-            
             Console.WriteLine("\nТекущий список товаров:");
             foreach (var product in products)
             {
@@ -327,13 +341,15 @@ class Program
             Console.WriteLine($"Произошла ошибка: {ex.Message}");
         }
     }
+
     static void SellProducts()
     {
-        if (products.Count == 0 )
+        if (products.Count == 0)
         {
             Console.WriteLine("Нечего продавать!");
             return;
         }
+
         try
         {
             Console.WriteLine("\n Текущий список товаров: ");
@@ -341,70 +357,69 @@ class Program
             {
                 product.PrintInfo();
             }
-            Console.Write("\nВведите ID товара на продажу:");
+
+            Console.Write("\nВведите ID товара для продажи: ");
             int productId = int.Parse(Console.ReadLine());
 
             Product productToSell = products.Find(p => p.ProductID == productId);
-            int ProductCount = productToSell.Quantity; //количество товара которое имеем
 
-            if (int.TryParse(Console.ReadLine(), out  productId))
+            if (productToSell != null)
             {
-                Console.Write($"Осталось  {ProductCount}   {productToSell.Name} ");
-                if (productToSell != null)
+                Console.Write($"Введите количество '{productToSell.Name}' которое вы хотите продать: ");
+                int productSellCount = int.Parse(Console.ReadLine());
+
+                if (productSellCount <= 0)
                 {
-                    
-                    Console.Write($" Вы уверены, что хотите продать товар  {productToSell.Name} (ID: {productToSell.ProductID})  (да/нет): ");
-                    string confirmation = Console.ReadLine();
+                    Console.WriteLine("Количество должно быть положительным числом!");
+                    return;
+                }
 
+                if (productSellCount > productToSell.Quantity)
+                {
+                    Console.WriteLine($"Недостаточно товара! В наличии: {productToSell.Quantity} шт.");
+                    return;
+                }
 
-                    Console.Write($"Введите количество   {productToSell.Name}  которое вы хотите продать");
-                    int ProductSellCount = int.Parse(Console.ReadLine()); //количество товара которое хотим продать
-                    if (ProductSellCount <= 0)
-                    {
-                        Console.WriteLine("Количество должно быть положительным числом!");
-                        return;
-                    }
-                    if (ProductSellCount > ProductCount)
-                    {
-                        Console.WriteLine("Недопустимое количество на складе нет столько товара!");
-                    }
-                    else
-                    {
-                        
-                    }
-                    decimal totalPrice = ProductSellCount * productToSell.Price;
+                decimal totalPrice = productSellCount * productToSell.Price;
 
-                    if (confirmation?.ToLower() == "да" || confirmation?.ToLower() == "yes")
-                    {
-                        ProductCount -= ProductSellCount;
-                        productToSell.HaveStorage = productToSell.Quantity > 0;
+                // Подтверждение продажи
+                Console.WriteLine($"\n=== ПОДТВЕРЖДЕНИЕ ПРОДАЖИ ===");
+                Console.WriteLine($"Товар: {productToSell.Name}");
+                Console.WriteLine($"Цена за единицу: {productToSell.Price:C}");
+                Console.WriteLine($"Количество: {productSellCount} шт.");
+                Console.WriteLine($"Общая сумма: {totalPrice: денег}");
+                Console.Write($"\nПодтвердить продажу? (да/нет): ");
 
-                        Console.WriteLine($" Продажа завершена!");
-                        Console.WriteLine($"Остаток товара: {ProductCount} шт.");
-                        Console.WriteLine($"Выручка: {totalPrice : денег}");
-                    }
-                    else
-                    {
-                        Console.WriteLine(" В продаже отказано.");
-                    }
+                string confirmation = Console.ReadLine();
+
+                if (confirmation?.ToLower() == "да" || confirmation?.ToLower() == "yes")
+                {
+                    productToSell.Quantity -= productSellCount;
+                    productToSell.HaveStorage = productToSell.Quantity > 0;
+
+                    Console.WriteLine($" Продажа завершена!");
+                    Console.WriteLine($"Остаток товара: {productToSell.Quantity} шт.");
+                    Console.WriteLine($"Выручка: {totalPrice: денег}");
                 }
                 else
                 {
-                    Console.WriteLine("Товар с таким ID не найден!");
+                    Console.WriteLine(" Продажа отменена.");
                 }
             }
             else
             {
-                Console.WriteLine(" Неверный формат ID! Введите целое число.");
+                Console.WriteLine("Товар с таким ID не найден!");
             }
-
         }
-        catch(FormatException)
+        catch (FormatException)
         {
             Console.WriteLine("Ошибка ввода! Проверьте правильность данных.");
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Произошла ошибка: {ex.Message}");
+        }
     }
 }
-
 
 
