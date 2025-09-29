@@ -76,7 +76,7 @@ class TextAnalyzer
                     NewTextAnalyzer();
                     break;
                 case "2":
-                    //ShowStatisticsHistory();
+                    ShowStatisticsHistory();
                     break;
                 case "3":
                     running = false;
@@ -104,11 +104,11 @@ class TextAnalyzer
             }
         } while (text == null || text.Length < 100);
 
-        TextStat analyze = AnalyzeText(text);
+        TextStat stats = AnalyzeText(text);
         statisticsHistory.Add(stats);
 
         Console.WriteLine("\nАнализ завершен!");
-        stats.PrintStatistics();
+        stats.PrintStat();
 
         Console.WriteLine("\nНажмите любую клавишу для продолжения...");
         Console.ReadKey();
@@ -253,6 +253,29 @@ class TextAnalyzer
         return false;
     }
 
+    private void ShowStatisticsHistory()
+    {
+        Console.Clear();
+        Console.WriteLine("=== История статистики ===");
+        if(statisticsHistory.Count == 0)
+        {
+            Console.WriteLine("История пуста. Сначала проанализируйте хотя бы один текст.");
+        }
+        else
+        {
+            for (int i = 0; i < statisticsHistory.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. Анализ от {statisticsHistory[i].AnalysisTime:dd.MM.yyyy HH:mm:ss}");
+                statisticsHistory[i].PrintStat();
+            }
+        }
+
+        Console.WriteLine("\nНажмите любую клавишу для продолжения...");
+        Console.ReadKey();
+
+
+
+    }
 
 
 }
