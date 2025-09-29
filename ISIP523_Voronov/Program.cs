@@ -49,7 +49,7 @@ class TextAnalyzer
 {
     private List<TextStat> statisticsHistory = new List<TextStat>();
     private readonly char[] vowels = { 'а', 'е', 'ё', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я', 'a', 'e', 'i', 'o', 'u', 'y' };
-    private readonly char[] sentenceSeparators = { '.', '!', '?', ';' };
+    private readonly char[] sentenceSeparators = { '.', '!', '?', ';', ':',',' };
     static void Main(string[] args)
     {
         TextAnalyzer analyzer = new TextAnalyzer();
@@ -105,10 +105,10 @@ class TextAnalyzer
         } while (text == null || text.Length < 100);
 
         TextStat analyze = AnalyzeText(text);
-        //statisticsHistory.Add(stats);
+        statisticsHistory.Add(stats);
 
         Console.WriteLine("\nАнализ завершен!");
-        //stats.PrintStatistics();
+        stats.PrintStatistics();
 
         Console.WriteLine("\nНажмите любую клавишу для продолжения...");
         Console.ReadKey();
@@ -142,7 +142,7 @@ class TextAnalyzer
         stats.SentCount = CountSentences(text);
 
         // Подсчет гласных, согласных и частоты букв
-        //CountLetters(text, stats);
+        CountLetters(text, stats);
 
         return stats;
     }
@@ -207,6 +207,52 @@ class TextAnalyzer
         }
         return count;
     }
+    private void CountLetters(string text, TextStat stats)
+    {
+        stats.VowelCount = 0;
+        stats.ConsonantCount = 0;
+        stats.LetterFrequency.Clear();
+
+        for (int i = 0; i < text.Length; i++)
+        {
+            char c = char.ToLower(text[i]);
+
+            if (char.IsLetter(c))
+            {
+                // Обновляем частоту букв
+                if (stats.LetterFrequency.ContainsKey(c))
+                {
+                    stats.LetterFrequency[c]++;
+                }
+                else
+                {
+                    stats.LetterFrequency.Add(c, 1);
+                }
+
+                // Считаем гласные и согласные
+                if (IsVowel(c))
+                {
+                    stats.VowelCount++;
+                }
+                else
+                {
+                    stats.ConsonantCount++;
+                }
+            }
+        }
+
+    
+    }
+    private bool IsVowel(char c)
+    {
+        for (int i = 0; i < vowels.Length; i++)
+        {
+            if (vowels[i] == c)
+                return true;
+        }
+        return false;
+    }
+
 
 
 }
