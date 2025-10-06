@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using static Book;
 class Book
 {
@@ -29,4 +30,9 @@ class Book
         Fantasy
         
     }
+    public void PrintInfo()
+    {
+        Console.WriteLine($"ID: {BookID}, Название: {BookName}, Цена: {Price: денег}, Автор: {BookAuthor}, Жанр: {BookJenre}, Год: {BookYear}");
+    }
 }
+
