@@ -5,6 +5,8 @@ using System.Xml.Linq;
 using static Book;
 class Book
 {
+    private Jenre jenre;
+
     public int BookID { get; set; }
     public string BookName { get; set; }
     public string BookAuthor { get; set; }
@@ -21,13 +23,21 @@ class Book
         BookYear = year;
         Price = price;
     }
+
+    public Book(int bookID, Jenre jenre)
+    {
+        BookID = bookID;
+        this.jenre = jenre;
+    }
+
     public enum Jenre
     {
         Horror,
         Detective,
         Roman,
         Fantastik,
-        Fantasy
+        Fantasy,
+        Religion
         
     }
     public void PrintInfo()
@@ -61,7 +71,7 @@ class Program
                 case "1":
                     AddBook();
                     break;
-                case "2":
+                /*case "2":
                     RemoveBook();
                     break;
                 case "3":
@@ -75,7 +85,7 @@ class Program
                     break;
                 case "6":
                     SortBook();
-                    break;
+                    break;*/
                 case "7":
                     running = false;
                     break;
@@ -85,8 +95,92 @@ class Program
             }
         }
     }
-    
-    
+    static int GenerateProductId()
+    {
+        return nextProductId++;
+    }
+
+    // Добавить новый товар
+    static void AddBook()
+    {
+        try
+        {
+            // Автоматическая генерация ID
+            int bookID = GenerateProductId();
+            Console.WriteLine($"Автоматически сгенерированный ID товара: {bookID}");
+            Console.Write("Введите название книги: ");
+            string name = Console.ReadLine();
+
+            // Проверка на пустое названи
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                Console.WriteLine(" Название книги не может быть пустым!");
+                nextProductId--; // Откатываем счетчик, так как товар не был добавлен
+                return;
+            }
+
+            Console.Write("Введите цену книги: ");
+            decimal price = decimal.Parse(Console.ReadLine());
+            if (price < 0)
+            {
+                Console.WriteLine(" Цена не может быть отрицательной!");
+                nextProductId--; // Откатываем счетчик
+                return;
+            }
+
+            Console.Write("Введите автора книги: ");
+            string author = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(author))
+            {
+                Console.WriteLine(" Автор книги не может быть пустым!");
+                nextProductId--; // Откатываем счетчик, так как товар не был добавлен
+                return;
+            }
+            Console.Write("Введите год написания книги: ");
+            int year = int.Parse(Console.ReadLine());
+            if (price < 0)
+            {
+                Console.WriteLine(" Год не может быть отрицательной!");
+                nextProductId--; // Откатываем счетчик
+                return;
+            }
+
+
+            Console.Write("Введите жанр книги: \n" +
+                "1 - Хоррор страшилка книжка\n" +
+                "2 - Детективная супер интересная\n" +
+                "3 - Роман\n" +
+                "4 - Фантастика\n" +
+                "5 - Фентези\n" +
+                "6 - Религиозное чтиво\n" +
+                "Ваш выбор: ");
+
+            int categoryInput = int.Parse(Console.ReadLine());
+            if (categoryInput < 1 || categoryInput > 6)
+            {
+                Console.WriteLine(" Неверный жанр! Выберите от 1 до 6.");
+                nextProductId--; // Откатываем счетчик
+                return;
+            }
+
+            Jenre jenre = (Jenre)(categoryInput - 1);
+
+            Book newBook = new(bookID, jenre); 
+            products.Add(newBook);
+            Console.WriteLine(" Книга успешно добавлена!");
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine(" Ошибка ввода! Проверьте правильность данных.");
+            nextProductId--; // Откатываем счетчик при ошибке
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Произошла ошибка: {ex.Message}");
+            nextProductId--; // Откатываем счетчик при ошибке
+        }
+    }
+
 
 
 
