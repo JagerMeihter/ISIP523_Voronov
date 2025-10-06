@@ -47,8 +47,8 @@ class Book
 }
 class Program
 {
-    static List<Book> products = new List<Book>();
-    static int nextProductId = 1; // Счетчик для автоматической генерации ID
+    static List<Book> books = new List<Book>();
+    static int nextBookId = 1; // Счетчик для автоматической генерации ID
     static void Main(string[] args)
     {
         bool running = true;
@@ -71,10 +71,10 @@ class Program
                 case "1":
                     AddBook();
                     break;
-                /*case "2":
+                case "2":
                     RemoveBook();
                     break;
-                case "3":
+                /*case "3":
                     SearchBook();
                     break;
                 case "4":
@@ -97,7 +97,7 @@ class Program
     }
     static int GenerateProductId()
     {
-        return nextProductId++;
+        return nextBookId++;
     }
 
     // Добавить новый товар
@@ -115,7 +115,7 @@ class Program
             if (string.IsNullOrWhiteSpace(name))
             {
                 Console.WriteLine(" Название книги не может быть пустым!");
-                nextProductId--; // Откатываем счетчик, так как товар не был добавлен
+                nextBookId--; // Откатываем счетчик, так как товар не был добавлен
                 return;
             }
 
@@ -124,7 +124,7 @@ class Program
             if (price < 0)
             {
                 Console.WriteLine(" Цена не может быть отрицательной!");
-                nextProductId--; // Откатываем счетчик
+                nextBookId--; // Откатываем счетчик
                 return;
             }
 
@@ -133,7 +133,7 @@ class Program
             if (string.IsNullOrWhiteSpace(author))
             {
                 Console.WriteLine(" Автор книги не может быть пустым!");
-                nextProductId--; // Откатываем счетчик, так как товар не был добавлен
+                nextBookId--; // Откатываем счетчик, так как товар не был добавлен
                 return;
             }
             Console.Write("Введите год написания книги: ");
@@ -141,7 +141,7 @@ class Program
             if (price < 0)
             {
                 Console.WriteLine(" Год не может быть отрицательной!");
-                nextProductId--; // Откатываем счетчик
+                nextBookId--; // Откатываем счетчик
                 return;
             }
 
@@ -159,28 +159,84 @@ class Program
             if (categoryInput < 1 || categoryInput > 6)
             {
                 Console.WriteLine(" Неверный жанр! Выберите от 1 до 6.");
-                nextProductId--; // Откатываем счетчик
+                nextBookId--; // Откатываем счетчик
                 return;
             }
 
             Jenre jenre = (Jenre)(categoryInput - 1);
 
             Book newBook = new(bookID, jenre); 
-            products.Add(newBook);
+            books.Add(newBook);
             Console.WriteLine(" Книга успешно добавлена!");
         }
         catch (FormatException)
         {
             Console.WriteLine(" Ошибка ввода! Проверьте правильность данных.");
-            nextProductId--; // Откатываем счетчик при ошибке
+            nextBookId--; // Откатываем счетчик при ошибке
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Произошла ошибка: {ex.Message}");
-            nextProductId--; // Откатываем счетчик при ошибке
+            nextBookId--; // Откатываем счетчик при ошибке
         }
     }
+    static void RemoveBook()
+    {
+        if (books.Count == 0)
+        {
+            Console.WriteLine("Список книг пуст! Нечего удалять.");
+            return;
+        }
 
+        // Показываем все товары для удобства выбора
+        Console.WriteLine("\nТекущий список книг:");
+        foreach (var book in books)
+        {
+            book.PrintInfo();
+        }
+
+        Console.Write("\nВведите ID книги для удаления: ");
+        if (int.TryParse(Console.ReadLine(), out int bookId))
+        {
+            // Ищем товар по ID
+            Book bookToRemove = books.Find(p => p.BookID == bookId);
+
+            if (bookToRemove != null)
+            {
+                // Подтверждение удаления
+                Console.Write($"Вы уверены, что хотите удалить книгу '{bookToRemove.BookName}' (ID: {bookToRemove.BookID})? (да/нет): ");
+                string confirmation = Console.ReadLine();
+
+                if (confirmation?.ToLower() == "да" || confirmation?.ToLower() == "yes")
+                {
+                    books.Remove(bookToRemove);
+                    Console.WriteLine(" Книга успешно удалена!");
+
+                    // Если удаленный товар был с максимальным ID, можно пересчитать nextProductId
+                    if (books.Count == 0)
+                    {
+                        nextBookId = 1;
+                    }
+                    else
+                    {
+                        nextBookId = books.Max(p => p.BookID) + 1;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(" Удаление отменено.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Книга с таким ID не найдена!");
+            }
+        }
+        else
+        {
+            Console.WriteLine(" Неверный формат ID! Введите целое число.");
+        }
+    }
 
 
 
