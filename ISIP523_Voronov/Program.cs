@@ -80,10 +80,10 @@ class Program
                     SearchBook();
                     break;
                 case "4":
-                    //AuthorBook();
+                    AuthorBook();
                     break;
                 case "5":
-                    //PriceBook();
+                    PriceBook();
                     break;
                 case "6":
                     //SortBook();
