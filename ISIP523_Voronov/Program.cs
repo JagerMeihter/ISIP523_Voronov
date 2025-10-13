@@ -296,6 +296,43 @@ class Program
             Console.WriteLine("Книги не найдены.");
         }
     }
+    static void AuthorBook()
+    {
+        if (books.Count == 0)
+        {
+            Console.WriteLine("Список книг пуст!");
+            return;
+        }
+
+        Console.WriteLine("\n=== КОЛИЧЕСТВО КНИГ ПО АВТОРАМ ===");
+        var authorGroups = books.GroupBy(b => b.BookAuthor)
+                               .Select(g => new { Author = g.Key, Count = g.Count() });
+
+        foreach (var group in authorGroups)
+        {
+            Console.WriteLine($"Автор: {group.Author}, Количество книг: {group.Count}");
+        }
+    }
+
+    static void PriceBook()
+    {
+        if (books.Count == 0)
+        {
+            Console.WriteLine("Список книг пуст!");
+            return;
+        }
+
+        Console.WriteLine("\n=== САМАЯ ДОРОГАЯ И САМАЯ ДЕШЕВАЯ КНИГА ===");
+
+        var mostExpensive = books.OrderByDescending(b => b.Price).First();
+        var cheapest = books.OrderBy(b => b.Price).First();
+
+        Console.WriteLine("Самая дорогая книга:");
+        mostExpensive.PrintInfo();
+
+        Console.WriteLine("\nСамая дешевая книга:");
+        cheapest.PrintInfo();
+    }
 
 
 }
