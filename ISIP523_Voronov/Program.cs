@@ -12,43 +12,42 @@ public static class Function
         Random random = new Random();
         return random.Next(1, 21);
     }
-
-    public static  int GameStart()
-    {
-
-        running = true;
-
-    }
-    public static int Tutorial()
-    {
-
-    }
-    public static int Exit()
-    {
-        running = false;
-    }
 }
 
 
 class Program 
 {
-    static void Main()
+    static void Main(string[] args)
     {
-        Console.WriteLine("  ┌─┐┌─┐┬─┐┌─┐┌─┐┬\r\n  │ ┬├┤ ├┬┘│  ├─┤│\r\n  └─┘└─┘┴└─└─┘┴ ┴┴\r\n  ┬  ┌─┐┌─┐┌─┐┬\r\n  │  │ ││  ├─ �│\r\n  ┴─┘└─┘└─┘┴  ┴");
-        Console.WriteLine("Добро пожаловать! Хотите испытать се5бя в битве? За пследний глоток ВОЛИ? (выберите вариант для продолжения)");
-        Console.WriteLine("1. Я готов! (начать новую игру)");
-        Console.WriteLine("2. Что? (Туториал)");
-        Console.WriteLine("3. Не, я струсил (Выйти)");
-
-
-
-
-
-
+        bool running = true;
         int result = Function.RollDice20();
         //Console.WriteLine($"Результат броска: {result}");
-    }
+        while (running)
+        {
+            Console.WriteLine("  ┌─┐┌─┐┬─┐┌─┐┌─┐┬\r\n  │ ┬├┤ ├┬┘│  ├─┤│\r\n  └─┘└─┘┴└─└─┘┴ ┴┴\r\n  ┬  ┌─┐┌─┐┌─┐┬\r\n  │  │ ││  ├─ �│\r\n  ┴─┘└─┘└─┘┴  ┴");
+            Console.WriteLine("Добро пожаловать! Хотите испытать се5бя в битве? За пследний глоток ВОЛИ? (выберите вариант для продолжения)");
+            Console.WriteLine("1. Я готов! (начать новую игру)");
+            Console.WriteLine("2. Что? (Туториал)");
+            Console.WriteLine("3. Не, я струсил (Выйти)");
+            string choice = Console.ReadLine();
+            switch (choice)
+            {
+                case "1":
+                   
+                    break;
+                case "2":
+                    
+                    break;
+                case "3":
+                    running = false;
+                    break;
 
+                default:
+                    Console.WriteLine("Такого не дано, выбирай давай!");
+                    break;
+            }
+        }
+    }
 }
 
 
