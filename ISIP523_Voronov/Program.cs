@@ -589,14 +589,282 @@ class Program
                 StartForestBattle();
                 break;
             case "⚰️ Тихий склеп":
-                //StartCryptBattle();
+                StartCryptBattle();
                 break;
             case "🏰 Брошенная башня":
-                //StartTowerBattle();
+                StartTowerBattle();
                 break;
         }
     }
+    static void StartTowerBattle()
+    {
+        Console.Clear();
+        Console.WriteLine("🏰 Вы поднимаетесь в Брошенную башню...");
+        System.Threading.Thread.Sleep(1500);
 
+        // Бой с обычным магом
+        var mage = new Humanoid("Маг-чародей");
+        mage.Health = 70;
+        mage.MaxHealth = 70;
+        mage.Damage = 12;
+        mage.Defense = 8;
+        mage.SpecialAbility = "❄️ Ледяная стрела";
+
+        Console.WriteLine($"\n🧙 {mage.Name} блокирует вам путь!");
+        System.Threading.Thread.Sleep(1000);
+
+        bool playerWon = CombatSystem(mage);
+        if (!playerWon)
+        {
+            GameOver();
+            return;
+        }
+
+        // Бой с боссом
+        Console.WriteLine("\nПоднявшись на самый верх башни, вы встречаете Архимага C++!");
+        System.Threading.Thread.Sleep(1500);
+
+        var archmage = new ArchmageCPlusPlus(QuantityHP);
+        playerWon = CombatSystem(archmage);
+
+        if (playerWon)
+        {
+            Console.WriteLine("\n🎉 Вы победили Архимага и завладели башней!");
+            locations[2].IsCompleted = true;
+            Console.WriteLine("Нажмите любую клавишу чтобы продолжить...");
+            Console.ReadKey();
+        }
+        else
+        {
+            GameOver();
+        }
+    }
+    static void GameOver()
+    {
+        Console.Clear();
+        Console.WriteLine("╔══════════════════════════════╗");
+        Console.WriteLine("║          GAME OVER           ║");
+        Console.WriteLine("╠══════════════════════════════╣");
+        Console.WriteLine("║ Ваше приключение окончено... ║");
+        Console.WriteLine("║                              ║");
+        Console.WriteLine("║ Ваши кости навсегда          ║");
+        Console.WriteLine("║ остануться тут,может хоть    ║");
+        Console.WriteLine("║ червей попитаете             ║");
+        Console.WriteLine("╚══════════════════════════════╝");
+        Console.WriteLine("\nНажмите любую клавишу чтобы вернуться в главное меню...");
+        Console.ReadKey();
+    }
+    static bool CombatSystem(Enemy enemy)
+    {
+        while (enemy.IsAlive && QuantityHP > 0)
+        {
+            Console.Clear();
+            Console.WriteLine("╔══════════════════════════════╗");
+            Console.WriteLine($"║           БИТВА!            ║");
+            Console.WriteLine("╠══════════════════════════════╣");
+            // Показываем статус
+            Console.WriteLine($"║ Ваше HP: {QuantityHP,-19} ║");
+            Console.WriteLine($"║ {enemy.GetDescription().Split('\n')[0],-28} ║");
+            Console.WriteLine("╠══════════════════════════════╣");
+
+            // Ход врага
+            if (!enemy.IsAlive) break;
+
+            EnemyTurn(enemy);
+            if (QuantityHP <= 0) return false;
+
+            // Ход игрока
+            if (!PlayerTurn(enemy))
+                return false; // Игрок сбежал
+
+            System.Threading.Thread.Sleep(2000);
+        }
+
+        return QuantityHP > 0;
+    }
+    static void EnemyTurn(Enemy enemy)
+    {
+        Console.WriteLine($"\n🎯 Ход {enemy.Name}:");
+
+        var diceRoll = Function.RollDice20();
+        bool useSpecial = diceRoll > 15; // 25% шанс использовать спецспособность
+
+        if (useSpecial && enemy is Undead undead)
+        {
+            undead.SpecialAttack(new Player { Health = QuantityHP, Inventory = inventory });
+        }
+        else if (useSpecial && enemy is ArchmageCPlusPlus archmage)
+        {
+            archmage.SpecialAttack(new Player { Health = QuantityHP, Inventory = inventory });
+        }
+        else
+        {
+            int enemyAttack = enemy.Attack();
+            Console.WriteLine($"{enemy.Name} атакует с силой {enemyAttack}!");
+
+            // Игрок пытается блокировать
+            Console.WriteLine("! У вас есть возможность заблокировать удар");
+            Console.WriteLine("Нажмите любую клавишу для броска защиты...");
+            Console.ReadKey();
+
+            int defenseRoll = Function.RollDice20();
+            Console.WriteLine($"🎲 Ваш бросок защиты: {defenseRoll}");
+
+            if (defenseRoll > 10) // Успешная защита
+            {
+                int damage = enemy.CalculateDamage(Math.Max(0, enemyAttack - defenseRoll), "normal");
+                if (damage > 0)
+                {
+                    QuantityHP -= damage;
+                    Console.WriteLine($"💥 Вы получили {damage} урона");
+                }
+                else
+                {
+                    Console.WriteLine("🛡️ Вы отразили удар!");
+                }
+            }
+            else
+            {
+                int damage = enemy.CalculateDamage(enemyAttack, "normal");
+                QuantityHP -= damage;
+                Console.WriteLine($"💥 Вы получили {damage} урона");
+            }
+        }
+
+        // Проверяем заморозку
+        if (enemy is Undead || enemy is ArchmageCPlusPlus)
+        {
+            var player = new Player { Health = QuantityHP, Inventory = inventory };
+            player.ApplyFrozenEffect();
+            if (player.IsFrozen)
+            {
+                Console.WriteLine("❄️ Вы заморожены и пропускаете ход!");
+                return;
+            }
+        }
+    }
+
+    static bool PlayerTurn(Enemy enemy)
+    {
+        Console.WriteLine($"\n⭐ Ваш ход!");
+        Console.WriteLine("╔══════════════════════════════╗");
+        Console.WriteLine("║         ВАШИ ДЕЙСТВИЯ        ║");
+        Console.WriteLine("╠══════════════════════════════╣");
+        Console.WriteLine("║ 1. ⚔️ Атаковать              ║");
+        Console.WriteLine("║ 2. 📦 Использовать предмет   ║");
+        Console.WriteLine("║ 3. 🏃 Сбежать                ║");
+        Console.WriteLine("╚══════════════════════════════╝");
+        Console.Write("Ваш выбор: ");
+
+        string choice = Console.ReadLine();
+
+        switch (choice)
+        {
+            case "1":
+                PlayerAttack(enemy);
+                return true;
+            case "2":
+                ShowInventory();
+                return true;
+            case "3":
+                Console.WriteLine("Вы пытаетесь сбежать...");
+                if (Function.RollDice20() > 12)
+                {
+                    Console.WriteLine("✅ Вам удалось сбежать!");
+                    return false;
+                }
+                else
+                {
+                    Console.WriteLine("❌ Враг не даёт вам сбежать!");
+                    return true;
+                }
+            default:
+                Console.WriteLine("Неверный выбор! Вы пропускаете ход.");
+                return true;
+        }
+    }
+    static void PlayerAttack(Enemy enemy)
+    {
+        int playerAttack = Function.RollDice20() + 5; // Базовая атака игрока
+        Console.WriteLine($"🎲 Ваш бросок атаки: {playerAttack}");
+
+        string damageType = "normal";
+        if (enemy is Undead && inventory.Any(item => item.ToLower().Contains("свят") || item.ToLower().Contains("holy")))
+        {
+            damageType = "holy";
+        }
+
+        int damage = enemy.CalculateDamage(playerAttack, damageType);
+        enemy.TakeDamage(damage);
+
+        if (!enemy.IsAlive)
+        {
+            Console.WriteLine($"🎉 Вы победили {enemy.Name}!");
+        }
+    }
+
+
+
+    static void StartCryptBattle()
+    {
+        Console.Clear();
+        Console.WriteLine("⚰️ Вы входите в Тихий склеп...");
+        System.Threading.Thread.Sleep(1500);
+
+        // Бой с двумя скелетами
+        Console.WriteLine("\n💀 Из-за саркофагов поднимаются два скелета!");
+        System.Threading.Thread.Sleep(1000);
+
+        var skeleton1 = new Undead("Скелет-воин", 2);
+        var skeleton2 = new Undead("Скелет-лучник", 2);
+
+        bool playerWon = CombatSystem(skeleton1);
+        if (!playerWon)
+        {
+            GameOver();
+            return;
+        }
+
+        Console.WriteLine("\n💀 Второй скелет атакует!");
+        playerWon = CombatSystem(skeleton2);
+        if (!playerWon)
+        {
+            GameOver();
+            return;
+        }
+
+        // Бой с боссом
+        Console.WriteLine("\nПосле победы над скелетами в склепе воцаряется тишина...");
+        System.Threading.Thread.Sleep(1500);
+
+        Random random = new Random();
+        if (random.Next(100) < 80) // 80% шанс
+        {
+            Console.WriteLine("Из самого большого саркофага поднимается Ковальский!");
+            var kovalSky = new KovalSky(QuantityHP);
+            System.Threading.Thread.Sleep(1000);
+            playerWon = CombatSystem(kovalSky);
+        }
+        else // 20% шанс
+        {
+            Console.WriteLine("Из тьмы появляется загадочный Пестов С--!");
+            var pestovS = new PestovS(QuantityHP);
+            System.Threading.Thread.Sleep(1000);
+            playerWon = CombatSystem(pestovS);
+        }
+
+        if (playerWon)
+        {
+            Console.WriteLine("\n🎉 Вы очистили склеп от нежити!");
+            locations[1].IsCompleted = true;
+            Console.WriteLine("Нажмите любую клавишу чтобы продолжить...");
+            Console.ReadKey();
+        }
+        else
+        {
+            GameOver();
+        }
+    }
     static void StartForestBattle()
     {
         Console.Clear();
@@ -635,229 +903,7 @@ class Program
         {
             GameOver();
         }
-        static void GameOver()
-        {
-            Console.Clear();
-            Console.WriteLine("╔══════════════════════════════╗");
-            Console.WriteLine("║          GAME OVER           ║");
-            Console.WriteLine("╠══════════════════════════════╣");
-            Console.WriteLine("║ Ваше приключение окончено... ║");
-            Console.WriteLine("║                              ║");
-            Console.WriteLine("║ Ваши кости навсегда          ║");
-            Console.WriteLine("║ остануться тут,может хоть    ║");
-            Console.WriteLine("║ червей попитаете             ║");
-            Console.WriteLine("╚══════════════════════════════╝");
-            Console.WriteLine("\nНажмите любую клавишу чтобы вернуться в главное меню...");
-            Console.ReadKey();
-        }
-        static bool CombatSystem(Enemy enemy)
-        {
-            while (enemy.IsAlive && QuantityHP > 0)
-            {
-                Console.Clear();
-                Console.WriteLine("╔══════════════════════════════╗");
-                Console.WriteLine($"║           БИТВА!            ║");
-                Console.WriteLine("╠══════════════════════════════╣");
-                // Показываем статус
-                Console.WriteLine($"║ Ваше HP: {QuantityHP,-19} ║");
-                Console.WriteLine($"║ {enemy.GetDescription().Split('\n')[0],-28} ║");
-                Console.WriteLine("╠══════════════════════════════╣");
-
-                // Ход врага
-                if (!enemy.IsAlive) break;
-
-                EnemyTurn(enemy);
-                if (QuantityHP <= 0) return false;
-
-                // Ход игрока
-                if (!PlayerTurn(enemy))
-                    return false; // Игрок сбежал
-
-                System.Threading.Thread.Sleep(2000);
-            }
-
-            return QuantityHP > 0;
-        }
-        static void EnemyTurn(Enemy enemy)
-        {
-            Console.WriteLine($"\n🎯 Ход {enemy.Name}:");
-
-            var diceRoll = Function.RollDice20();
-            bool useSpecial = diceRoll > 15; // 25% шанс использовать спецспособность
-
-            if (useSpecial && enemy is Undead undead)
-            {
-                undead.SpecialAttack(new Player { Health = QuantityHP, Inventory = inventory });
-            }
-            else if (useSpecial && enemy is ArchmageCPlusPlus archmage)
-            {
-                archmage.SpecialAttack(new Player { Health = QuantityHP, Inventory = inventory });
-            }
-            else
-            {
-                int enemyAttack = enemy.Attack();
-                Console.WriteLine($"{enemy.Name} атакует с силой {enemyAttack}!");
-
-                // Игрок пытается блокировать
-                Console.WriteLine("! У вас есть возможность заблокировать удар");
-                Console.WriteLine("Нажмите любую клавишу для броска защиты...");
-                Console.ReadKey();
-
-                int defenseRoll = Function.RollDice20();
-                Console.WriteLine($"🎲 Ваш бросок защиты: {defenseRoll}");
-
-                if (defenseRoll > 10) // Успешная защита
-                {
-                    int damage = enemy.CalculateDamage(Math.Max(0, enemyAttack - defenseRoll), "normal");
-                    if (damage > 0)
-                    {
-                        QuantityHP -= damage;
-                        Console.WriteLine($"💥 Вы получили {damage} урона");
-                    }
-                    else
-                    {
-                        Console.WriteLine("🛡️ Вы отразили удар!");
-                    }
-                }
-                else
-                {
-                    int damage = enemy.CalculateDamage(enemyAttack, "normal");
-                    QuantityHP -= damage;
-                    Console.WriteLine($"💥 Вы получили {damage} урона");
-                }
-            }
-
-            // Проверяем заморозку
-            if (enemy is Undead || enemy is ArchmageCPlusPlus)
-            {
-                var player = new Player { Health = QuantityHP, Inventory = inventory };
-                player.ApplyFrozenEffect();
-                if (player.IsFrozen)
-                {
-                    Console.WriteLine("❄️ Вы заморожены и пропускаете ход!");
-                    return;
-                }
-            }
-        }
-
-        static bool PlayerTurn(Enemy enemy)
-        {
-            Console.WriteLine($"\n⭐ Ваш ход!");
-            Console.WriteLine("╔══════════════════════════════╗");
-            Console.WriteLine("║         ВАШИ ДЕЙСТВИЯ        ║");
-            Console.WriteLine("╠══════════════════════════════╣");
-            Console.WriteLine("║ 1. ⚔️ Атаковать              ║");
-            Console.WriteLine("║ 2. 📦 Использовать предмет   ║");
-            Console.WriteLine("║ 3. 🏃 Сбежать                ║");
-            Console.WriteLine("╚══════════════════════════════╝");
-            Console.Write("Ваш выбор: ");
-
-            string choice = Console.ReadLine();
-
-            switch (choice)
-            {
-                case "1":
-                    PlayerAttack(enemy);
-                    return true;
-                case "2":
-                    ShowInventory();
-                    return true;
-                case "3":
-                    Console.WriteLine("Вы пытаетесь сбежать...");
-                    if (Function.RollDice20() > 12)
-                    {
-                        Console.WriteLine("✅ Вам удалось сбежать!");
-                        return false;
-                    }
-                    else
-                    {
-                        Console.WriteLine("❌ Враг не даёт вам сбежать!");
-                        return true;
-                    }
-                default:
-                    Console.WriteLine("Неверный выбор! Вы пропускаете ход.");
-                    return true;
-            }
-        }
-        static void PlayerAttack(Enemy enemy)
-        {
-            int playerAttack = Function.RollDice20() + 5; // Базовая атака игрока
-            Console.WriteLine($"🎲 Ваш бросок атаки: {playerAttack}");
-
-            string damageType = "normal";
-            if (enemy is Undead && inventory.Any(item => item.ToLower().Contains("свят") || item.ToLower().Contains("holy")))
-            {
-                damageType = "holy";
-            }
-
-            int damage = enemy.CalculateDamage(playerAttack, damageType);
-            enemy.TakeDamage(damage);
-
-            if (!enemy.IsAlive)
-            {
-                Console.WriteLine($"🎉 Вы победили {enemy.Name}!");
-            }
-        }
-        static void StartCryptBattle()
-        {
-            Console.Clear();
-            Console.WriteLine("⚰️ Вы входите в Тихий склеп...");
-            System.Threading.Thread.Sleep(1500);
-
-            // Бой с двумя скелетами
-            Console.WriteLine("\n💀 Из-за саркофагов поднимаются два скелета!");
-            System.Threading.Thread.Sleep(1000);
-
-            var skeleton1 = new Undead("Скелет-воин", 2);
-            var skeleton2 = new Undead("Скелет-лучник", 2);
-
-            bool playerWon = CombatSystem(skeleton1);
-            if (!playerWon)
-            {
-                GameOver();
-                return;
-            }
-
-            Console.WriteLine("\n💀 Второй скелет атакует!");
-            playerWon = CombatSystem(skeleton2);
-            if (!playerWon)
-            {
-                GameOver();
-                return;
-            }
-
-            // Бой с боссом
-            Console.WriteLine("\nПосле победы над скелетами в склепе воцаряется тишина...");
-            System.Threading.Thread.Sleep(1500);
-
-            Random random = new Random();
-            if (random.Next(100) < 80) // 80% шанс
-            {
-                Console.WriteLine("Из самого большого саркофага поднимается Ковальский!");
-                var kovalSky = new KovalSky(QuantityHP);
-                System.Threading.Thread.Sleep(1000);
-                playerWon = CombatSystem(kovalSky);
-            }
-            else // 20% шанс
-            {
-                Console.WriteLine("Из тьмы появляется загадочный Пестов С--!");
-                var pestovS = new PestovS(QuantityHP);
-                System.Threading.Thread.Sleep(1000);
-                playerWon = CombatSystem(pestovS);
-            }
-
-            if (playerWon)
-            {
-                Console.WriteLine("\n🎉 Вы очистили склеп от нежити!");
-                locations[1].IsCompleted = true;
-                Console.WriteLine("Нажмите любую клавишу чтобы продолжить...");
-                Console.ReadKey();
-            }
-            else
-            {
-                GameOver();
-            }
-        }
+        
     }
 
     static void ShowMainMenu()
