@@ -80,6 +80,286 @@ public abstract class Enemy
     }
 
 }
+public class Player
+{
+    public string Name { get; set; }
+    public int Health { get; set; }
+    public int MaxHealth { get; set; }
+    public bool IsFrozen { get; set; }
+    public int FrozenTurns { get; set; }
+    public List<string> Inventory { get; set; } = new List<string>();
+
+    // Метод для проверки святого оружия
+    public bool HasHolyWeapon()
+    {
+        return Inventory.Any(item =>
+            item.Contains("свящ") ||
+            item.Contains("святой") ||
+            item.Contains("holy") ||
+            item.Contains("благословен"));
+    }
+
+    public void ApplyFrozenEffect()
+    {
+        if (IsFrozen && FrozenTurns > 0)
+        {
+            Console.WriteLine("❄️ Вы заморожены и пропускаете ход!");
+            FrozenTurns--;
+
+            if (FrozenTurns == 0)
+            {
+                IsFrozen = false;
+                Console.WriteLine("✨ Лед растаял! Вы снова можете действовать!");
+            }
+        }
+    }
+}
+public class VVG : Goblinoid
+{
+    public VVG() : base("ВВГ", 3)
+    {
+        // Усиленные характеристики от обычного гоблина
+        Health = 40; // ×2 от базового гоблина (60)
+        MaxHealth = Health;
+        Damage = 18;  // ×1.5 от базового гоблина (12)
+        Defense = 6;  // ×1.2 от базового гоблина (5)
+        CritChance = 0.35; // +10% от обычного гоблина (25%)
+    }
+
+    public override string GetDescription()
+    {
+        return $"👑 {Name} (Уровень {Level}) - Босс Гоблин\n" +
+               $"❤️ Здоровье: {Health}/{MaxHealth}\n" +
+               $"⚔️ Урон: {Damage}\n" +
+               $"🛡️ Защита: {Defense}\n" +
+               $"🎯 Крит шанс: 35%\n" +
+               $"💥 Крит множитель: x2.5\n" +
+               $"✨ Способность: Смертельный удар";
+    }
+}
+
+public class KovalSky : Undead
+{
+    public KovalSky(int playerHealth) : base("Ковальский", 4)
+    {
+        Health = (int)(playerHealth * 2.5);
+        MaxHealth = Health;
+        Damage = 20;  // ×1.3 от базового скелета (15)
+        Defense = 11; // ×1.4 от базового скелета (8)
+    }
+
+    public override int CalculateDamage(int incomingDamage, string damageType)
+    {
+        // Полностью игнорирует защиту игрока
+        return incomingDamage;
+    }
+
+    public override string GetDescription()
+    {
+        return $"💀 {Name} (Уровень {Level}) - Босс Скелет\n" +
+               $"❤️ Здоровье: {Health}/{MaxHealth}\n" +
+               $"⚔️ Урон: {Damage}\n" +
+               $"🛡️ Защита: {Defense} (игнорирует вашу защиту)\n" +
+               $"⚠️ Слабость: Святое оружие";
+    }
+}
+
+public class PestovS : Undead
+{
+    public PestovS(int playerHealth) : base("Пестов С--", 4)
+    {
+        Health = (int)(playerHealth * 1.3);
+        MaxHealth = Health;
+        Damage = 27;  // ×1.8 от базового скелета (15)
+        Defense = 5;  // ×0.6 от базового скелета (8)
+    }
+
+    public override int Attack()
+    {
+        // Бросок атаки d20 + 8
+        return Function.RollDice20() + 8;
+    }
+
+    public override int CalculateDamage(int incomingDamage, string damageType)
+    {
+        // Полностью игнорирует защиту игрока
+        return incomingDamage;
+    }
+
+    public override void SpecialAttack(Player target)
+    {
+        var diceRoll = Function.RollDice20();
+        if (diceRoll >= 17) // 15% шанс заморозки (17+ из 20)
+        {
+            target.IsFrozen = true;
+            target.FrozenTurns = 1;
+            Console.WriteLine($"❄️ {Name} замораживает вас ледяным прикосновением! Вы пропускаете ход!");
+        }
+        else
+        {
+            Console.WriteLine($"{Name} пытается заморозить вас, но вы сопротивляетесь!");
+        }
+    }
+
+    public override string GetDescription()
+    {
+        return $"💀 {Name} (Уровень {Level}) - Босс Скелет\n" +
+               $"❤️ Здоровье: {Health}/{MaxHealth}\n" +
+               $"⚔️ Урон: d20 + 8\n" +
+               $"🛡️ Защита: {Defense} (игнорирует вашу защиту)\n" +
+               $"❄️ Шанс заморозки: 15%\n" +
+               $"⚠️ Слабость: Святое оружие";
+    }
+}
+
+public class ArchmageCPlusPlus : Humanoid
+{
+    public ArchmageCPlusPlus(int playerHealth) : base("Архимаг C++")
+    {
+        Health = (int)(playerHealth * 1.1);
+        MaxHealth = Health;
+        Damage = 0; // Использует специальную атаку
+        Defense = 11; // ×1.1 от базового мага
+        SpecialAbility = "❄️ Ледяная буря";
+    }
+
+    public override int Attack()
+    {
+        // Бросок атаки d20 + 6
+        return Function.RollDice20() + 6;
+    }
+
+    public override void SpecialAttack(Player target)
+    {
+        var diceRoll = Function.RollDice20();
+        if (diceRoll >= 18) // 10% шанс заморозки (18+ из 20)
+        {
+            target.IsFrozen = true;
+            target.FrozenTurns = 1;
+            Console.WriteLine($"❄️ {Name} накладывает на вас заморозку! Вы пропускаете ход!");
+        }
+        else
+        {
+            Console.WriteLine($"{Name} пытается заморозить вас, но заклинание не срабатывает!");
+        }
+    }
+
+    public override string GetDescription()
+    {
+        return $"🧙 {Name} (Уровень {Level}) - Босс Маг\n" +
+               $"❤️ Здоровье: {Health}/{MaxHealth}\n" +
+               $"⚔️ Урон: d20 + 6\n" +
+               $"🛡️ Защита: {Defense}\n" +
+               $"❄️ Шанс заморозки: 10%\n" +
+               $"✨ Способность: {SpecialAbility}";
+    }
+}
+public class Humanoid : Enemy
+{
+    public Humanoid(string name) : base(name)
+    {
+        // Сбалансированные характеристики
+        Health = 20;
+        MaxHealth = Health;
+        Damage = 8;
+        Defense = 10;
+
+        // Нет особых способностей или слабостей
+        SpecialAbility = "Нет";
+        Weakness = "Нет";
+    }
+
+    // Гуманоиды используют базовую логику без модификаций
+    public override string GetDescription()
+    {
+        return $"🧍 {Name} (Уровень {Level}) - Гуманоид\n" +
+               $"❤️ Здоровье: {Health}/{MaxHealth}\n" +
+               $"⚔️ Урон: {Damage}\n" +
+               $"🛡️ Защита: {Defense}\n" +
+               $"📊 Сбалансированные характеристики";
+    }
+}
+public class Goblinoid : Enemy
+{
+    private double critMultiplier;
+    public Goblinoid(string name, int level) : base(name)
+    {
+        // Гоблиноиды имеют меньше HP но высокий шанс крита
+        Health = 10;
+        MaxHealth = Health;
+        Damage = 12;
+        Defense = 5;
+        critMultiplier = 2.5; // Высокий множитель крита
+
+        // Уникальные способности гоблиноидов
+        SpecialAbility = "🎯 Смертельный удар";
+        Weakness = "Низкая защита";
+
+        // Повышенный шанс крита
+        CritChance = 0.25; // 25% вместо стандартных 5%
+    }
+    public override int Attack()
+    {
+        var attackRoll = Function.RollDice20();
+        int baseDamage = base.Attack();
+
+        return baseDamage;
+    }
+
+    public override string GetDescription()
+    {
+        return $"🐺 {Name} (Уровень {Level}) - Гоблиноид\n" +
+               $"❤️ Здоровье: {Health}/{MaxHealth}\n" +
+               $"⚔️ Урон: {Damage}\n" +
+               $"🛡️ Защита: {Defense}\n" +
+               $"🎯 Крит шанс: 25%\n" +
+               $"💥 Крит множитель: x{critMultiplier}\n" +
+               $"✨ Способность: {SpecialAbility}";
+    }
+}
+public class Undead : Enemy
+{
+    public Undead(string name, int level) : base(name)
+    {
+        Health = 80;
+        MaxHealth = Health;
+        Damage = 15;
+        Defense = 8;
+
+        // Уникальные способности нежити
+        SpecialAbility = "❄️ Ледяное прикосновение";
+        Weakness = "✨ Святое оружие";
+    }
+
+    public override int CalculateDamage(int incomingDamage, string damageType)
+    {
+        // Нежить получает двойной урон от святого оружия
+        if (damageType == "holy")
+        {
+            Console.WriteLine("✨ Святая энергия сжигает нежить! Урон удвоен!");
+            return incomingDamage * 2;
+        }
+        return base.CalculateDamage(incomingDamage, damageType);
+    }
+    public override void SpecialAttack(Player target)
+    {
+        var diceRoll = Function.RollDice20();
+        base.SpecialAttack(target);
+    }
+    public override string GetDescription()
+    {
+        return $"🧟 {Name} (Уровень {Level}) - Нежить\n" +
+               $"❤️ Здоровье: {Health}/{MaxHealth}\n" +
+               $"⚔️ Урон: {Damage}\n" +
+               $"🛡️ Защита: {Defense}\n" +
+               $"✨ Способность: {SpecialAbility}\n" +
+               $"⚠️ Слабость: {Weakness}";
+    }
+}
+
+
+
+
 
 class Program
 {
@@ -286,7 +566,241 @@ class Program
             }
         }
     }
+    static void StartLocationAdventure(Location location)
+    {
+        Console.Clear();
+        // Показываем локацию
+        Console.WriteLine($"╔══════════════════════════════╗");
+        Console.WriteLine($"║     {location.Name,-24} ║");
+        Console.WriteLine($"╠══════════════════════════════╣");
+        Console.WriteLine($"{location.Image}");
 
+        Console.WriteLine($"╠══════════════════════════════╣");
+        Console.WriteLine($" {location.Description,-28}   ");
+        Console.WriteLine($"╚══════════════════════════════╝");
+
+        Console.WriteLine("\nНажмите любую клавишу чтобы продолжить...");
+        Console.ReadKey();
+
+        // Запускаем соответствующую битву в зависимости от локации
+        switch (location.Name)
+        {
+            case "🌳 Гнилой Лес":
+                StartForestBattle();
+                break;
+            case "⚰️ Тихий склеп":
+                //StartCryptBattle();
+                break;
+            case "🏰 Брошенная башня":
+                //StartTowerBattle();
+                break;
+        }
+    }
+
+    static void StartForestBattle()
+    {
+        Console.Clear();
+        Console.WriteLine("🌳 Вы входите в Гнилой Лес...");
+        System.Threading.Thread.Sleep(1500);
+
+        // Первый бой с обычным гоблином
+        var goblin = new Goblinoid("Гоблин", 2);
+        Console.WriteLine($"\n🐺 На вас нападает {goblin.Name}!");
+        Console.WriteLine(" ⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠈⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\r\n⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\r\n⣿⣿⣿⣿⠟⠃⠀⠀⣰⣶⣆⣀⣀⣀⣀⡀⠀⠀⠀⠀⢻⣿⣿⣿⣿⣿⣿⣿\r\n⠛⠛⠉⠀⠀⠀⠀⢰⣿⣿⣿⣿⣿⣿⣿⡿⠶⠄⠀⠀⠀⠉⠛⠿⣿⣿⣿⣿\r\n⠀⠀⠀⠠⣄⡀⠀⠸⣿⣿⣿⣿⣿⠿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⣿⣿\r\n⠀⠀⠀⠀⠀⠘⠢⡀⠀⢈⠙⣿⣡⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠻⠿\r\n⠀⠀⠀⠀⠀⢀⠀⠈⢣⡄⠀⣿⠇⠀⠀⣠⣤⣶⣾⣿⣿⣷⣶⣦⣄⠀⠀⠀\r\n⠀⠀⠀⠀⢀⣿⡄⠀⠈⢀⣴⣿⡄⠀⡞⠁⠀⠉⠉⠻⠿⠿⣿⣿⣿⠀⠀⠀\r\n⠀⠀⠀⢠⣈⢿⣿⣦⣵⣿⣿⡿⢡⡀⠀⠈⠑⢶⡀⠀⠀⡀⢸⡿⠃⠀⠀⠀\r\n⠀⣶⣤⣿⣿⣷⡙⢿⣿⣿⣿⡇⡾⠋⠀⠀⠀⠀⠀⠀⠀⠀⠋⠁⠀⠀⠀⠀\r\n⠀⢻⣿⣿⡿⠋⠑⡞⢿⣿⣿⢰⡇⠀⠀⠀⢢⡄⠀⠀⠀⣾⠀⠀⠀⠀⠀⠀\r\n⣷⣿⣿⣿⣧⠀⠀⠘⡄⠹⣿⢨⡇⠀⠀⠀⠀⠉⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀\r\n⠟⠻⠟⠿⣿⣧⠀⠀⠘⡀⢹⡌⣷⡀⠀⠀⠀⡄⠀⣤⣤⡇⠀⠀⠀⠀⠀⠀\r\n⠀⠀⠀⠀⢹⣿⣷⡀⠀⠸⡄⢣⣿⣷⣄⡀⠀⢀⣠⣿⣿⢁⣠⠀⠀⠀⠀⠀\r\n⠀⣿⣶⣴⣿⣿⣿⣷⡀⠀⠹⡄⢸⣿⣿⣿⣿⣿⣿⡿⢋⣾⡏⠀⠀⠀⠀⠀\r\n⠁⣿⣿⣿⡏⠻⣿⣿⣷⠀⠀⢳⡈⢿⣿⣿⣿⣿⢏⣠⣾⣿⣧⠀⠀⠀⠀⠀");
+        System.Threading.Thread.Sleep(1000);
+
+        bool playerWon = CombatSystem(goblin);
+        if (!playerWon)
+        {
+            GameOver();
+            return;
+        }
+
+        // Второй бой с боссом ВВГ
+        Console.WriteLine("\nПосле боя вы слышите громкий рык...");
+        System.Threading.Thread.Sleep(1500);
+        Console.WriteLine("Из чащи появляется огромный гоблин - ВВГ!");
+
+        var vvg = new VVG();
+        System.Threading.Thread.Sleep(1000);
+
+        playerWon = CombatSystem(vvg);
+        if (playerWon)
+        {
+            Console.WriteLine("\n🎉 Вы победили ВВГ и очистили лес от гоблинов!");
+            locations[0].IsCompleted = true;
+            Console.WriteLine("Нажмите любую клавишу чтобы продолжить...");
+            Console.ReadKey();
+        }
+        else
+        {
+            GameOver();
+        }
+        static void GameOver()
+        {
+            Console.Clear();
+            Console.WriteLine("╔══════════════════════════════╗");
+            Console.WriteLine("║          GAME OVER           ║");
+            Console.WriteLine("╠══════════════════════════════╣");
+            Console.WriteLine("║ Ваше приключение окончено... ║");
+            Console.WriteLine("║                              ║");
+            Console.WriteLine("║ Ваши кости навсегда          ║");
+            Console.WriteLine("║ остануться тут,может хоть    ║");
+            Console.WriteLine("║ червей попитаете             ║");
+            Console.WriteLine("╚══════════════════════════════╝");
+            Console.WriteLine("\nНажмите любую клавишу чтобы вернуться в главное меню...");
+            Console.ReadKey();
+        }
+        static bool CombatSystem(Enemy enemy)
+        {
+            while (enemy.IsAlive && QuantityHP > 0)
+            {
+                Console.Clear();
+                Console.WriteLine("╔══════════════════════════════╗");
+                Console.WriteLine($"║           БИТВА!            ║");
+                Console.WriteLine("╠══════════════════════════════╣");
+
+                // Показываем статус
+                Console.WriteLine($"║ Ваше HP: {QuantityHP,-19} ║");
+                Console.WriteLine($"║ {enemy.GetDescription().Split('\n')[0],-28} ║");
+                Console.WriteLine("╠══════════════════════════════╣");
+
+                // Ход врага
+                if (!enemy.IsAlive) break;
+
+                EnemyTurn(enemy);
+                if (QuantityHP <= 0) return false;
+
+                // Ход игрока
+                if (!PlayerTurn(enemy))
+                    return false; // Игрок сбежал
+
+                System.Threading.Thread.Sleep(2000);
+            }
+
+            return QuantityHP > 0;
+        }
+        static void EnemyTurn(Enemy enemy)
+        {
+            Console.WriteLine($"\n🎯 Ход {enemy.Name}:");
+
+            var diceRoll = Function.RollDice20();
+            bool useSpecial = diceRoll > 15; // 25% шанс использовать спецспособность
+
+            if (useSpecial && enemy is Undead undead)
+            {
+                undead.SpecialAttack(new Player { Health = QuantityHP, Inventory = inventory });
+            }
+            else if (useSpecial && enemy is ArchmageCPlusPlus archmage)
+            {
+                archmage.SpecialAttack(new Player { Health = QuantityHP, Inventory = inventory });
+            }
+            else
+            {
+                int enemyAttack = enemy.Attack();
+                Console.WriteLine($"{enemy.Name} атакует с силой {enemyAttack}!");
+
+                // Игрок пытается блокировать
+                Console.WriteLine("! У вас есть возможность заблокировать удар");
+                Console.WriteLine("Нажмите любую клавишу для броска защиты...");
+                Console.ReadKey();
+
+                int defenseRoll = Function.RollDice20();
+                Console.WriteLine($"🎲 Ваш бросок защиты: {defenseRoll}");
+
+                if (defenseRoll > 10) // Успешная защита
+                {
+                    int damage = enemy.CalculateDamage(Math.Max(0, enemyAttack - defenseRoll), "normal");
+                    if (damage > 0)
+                    {
+                        QuantityHP -= damage;
+                        Console.WriteLine($"💥 Вы получили {damage} урона");
+                    }
+                    else
+                    {
+                        Console.WriteLine("🛡️ Вы отразили удар!");
+                    }
+                }
+                else
+                {
+                    int damage = enemy.CalculateDamage(enemyAttack, "normal");
+                    QuantityHP -= damage;
+                    Console.WriteLine($"💥 Вы получили {damage} урона");
+                }
+            }
+
+            // Проверяем заморозку
+            if (enemy is Undead || enemy is ArchmageCPlusPlus)
+            {
+                var player = new Player { Health = QuantityHP, Inventory = inventory };
+                player.ApplyFrozenEffect();
+                if (player.IsFrozen)
+                {
+                    Console.WriteLine("❄️ Вы заморожены и пропускаете ход!");
+                    return;
+                }
+            }
+        }
+
+        static bool PlayerTurn(Enemy enemy)
+        {
+            Console.WriteLine($"\n⭐ Ваш ход!");
+            Console.WriteLine("╔══════════════════════════════╗");
+            Console.WriteLine("║         ВАШИ ДЕЙСТВИЯ        ║");
+            Console.WriteLine("╠══════════════════════════════╣");
+            Console.WriteLine("║ 1. ⚔️ Атаковать              ║");
+            Console.WriteLine("║ 2. 📦 Использовать предмет   ║");
+            Console.WriteLine("║ 3. 🏃 Сбежать                ║");
+            Console.WriteLine("╚══════════════════════════════╝");
+            Console.Write("Ваш выбор: ");
+
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    PlayerAttack(enemy);
+                    return true;
+                case "2":
+                    ShowInventory();
+                    return true;
+                case "3":
+                    Console.WriteLine("Вы пытаетесь сбежать...");
+                    if (Function.RollDice20() > 12)
+                    {
+                        Console.WriteLine("✅ Вам удалось сбежать!");
+                        return false;
+                    }
+                    else
+                    {
+                        Console.WriteLine("❌ Враг не даёт вам сбежать!");
+                        return true;
+                    }
+                default:
+                    Console.WriteLine("Неверный выбор! Вы пропускаете ход.");
+                    return true;
+            }
+        }
+        static void PlayerAttack(Enemy enemy)
+        {
+            int playerAttack = Function.RollDice20() + 5; // Базовая атака игрока
+            Console.WriteLine($"🎲 Ваш бросок атаки: {playerAttack}");
+
+            string damageType = "normal";
+            if (enemy is Undead && inventory.Any(item => item.ToLower().Contains("свят") || item.ToLower().Contains("holy")))
+            {
+                damageType = "holy";
+            }
+
+            int damage = enemy.CalculateDamage(playerAttack, damageType);
+            enemy.TakeDamage(damage);
+
+            if (!enemy.IsAlive)
+            {
+                Console.WriteLine($"🎉 Вы победили {enemy.Name}!");
+            }
+        }
+    }
     static void ShowMainMenu()
     {
         Console.Clear();
@@ -600,7 +1114,7 @@ class Program
                 break;
         }
     }
-    static void StartLocationAdventure(Location location)
+    /*static void StartLocationAdventure(Location location)
     {
         Console.Clear();
         // Показываем локацию
@@ -616,7 +1130,7 @@ class Program
 
         // Запускаем ивент локации
         LocationEncounter(location);
-    }
+    }*/
     static void StartAdventure()
     {
         Console.Clear();
