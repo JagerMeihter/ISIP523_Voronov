@@ -20,5 +20,146 @@ while (programRunning)
     Console.WriteLine("8 - Показать полную базу данных");
     Console.WriteLine("0 - Завершить программу");
 
-    
+    int userChoice = Convert.ToInt32(Console.ReadLine());
+
+    switch (userChoice)
+
+    {
+        
+
+        case 1:
+            Console.WriteLine("Введите идентификатор: ");
+            int studentId = Convert.ToInt32(Console.ReadLine());
+            if (studentId == 0)
+            {
+                Console.WriteLine("Идентификатор не может быть пустым");
+                break;
+            }
+            Console.WriteLine("Введите полное имя: ");
+            string studentFullName = Console.ReadLine();
+            if (string.IsNullOrEmpty(studentFullName))
+            {
+                Console.WriteLine("Имя не может быть пустым");
+                break;
+            }
+            StudentNamesRegistry.Add(studentFullName);
+            Console.WriteLine("Введите дату рождения: (ГГГГ,ММ,ДД)");
+            DateOnly studentBirthDate = DateOnly.Parse(Console.ReadLine());
+            bool studentDateValid = DateOnly.TryParse(Console.ReadLine(), out studentBirthDate);
+            if (!studentDateValid)
+            {
+                Console.WriteLine("Неверный формат даты");
+                break;
+            }
+            Console.WriteLine("Введите пол: ");
+            string studentGender = Console.ReadLine();
+            if (string.IsNullOrEmpty(studentGender))
+            {
+                Console.WriteLine("Пол не может быть пустым");
+                break;
+            }
+            Console.WriteLine("Введите опыт работы с ПК (в годах): ");
+            int studentComputerExperience = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Введите группу здоровья: ");
+            string healthCategory = Console.ReadLine();
+            if (string.IsNullOrEmpty(healthCategory))
+            {
+                Console.WriteLine("Группа здоровья не может быть пустой");
+                break;
+            }
+            StudentRoster.Add(new Student(studentId, studentFullName, studentBirthDate, studentGender, studentComputerExperience, healthCategory));
+            break;
+    }
+}
+
+class Course
+{
+    private int CourseId;
+    public string CourseTitle;
+    private string CourseDescription;
+    private string InstructorName;
+    public List<string> EnrolledStudents;
+
+    public Course(int id, string title, string description, string instructor, List<string> students)
+    {
+        CourseId = id;
+        CourseTitle = title;
+        CourseDescription = description;
+        InstructorName = instructor;
+        EnrolledStudents = students;
+    }
+
+    public void DisplayInfo()
+    {
+        Console.WriteLine($"Название: {CourseTitle}\nОписание: {CourseDescription}\nПреподаватель: {InstructorName}");
+        Console.WriteLine("Зачисленные студенты:");
+        foreach (var participant in EnrolledStudents)
+        {
+            Console.WriteLine(participant);
+        }
+    }
+}
+
+class Person
+{
+    private string FullName;
+    private DateOnly BirthDate;
+    private string Gender;
+
+    public Person(string name, DateOnly dateOfBirth, string gender)
+    {
+        FullName = name;
+        BirthDate = dateOfBirth;
+        Gender = gender;
+    }
+
+    public virtual void DisplayInfo()
+    {
+        Console.WriteLine($"ФИО: {FullName}\nДата рождения: {BirthDate}\nПол: {Gender}");
+    }
+}
+
+class Teacher : Person
+{
+    private int TeacherId;
+    private int ComputerExperience;
+
+    public Teacher(int id, string name, DateOnly dateOfBirth, string gender, int experience)
+        : base(name, dateOfBirth, gender)
+    {
+        TeacherId = id;
+        ComputerExperience = experience;
+    }
+
+    public override void DisplayInfo()
+    {
+        Console.WriteLine("ПРЕПОДАВАТЕЛЬ");
+        base.DisplayInfo();
+        Console.WriteLine($"ID: {TeacherId}");
+        Console.WriteLine($"Опыт работы с компьютером: {ComputerExperience} лет\n");
+    }
+}
+
+class Student : Person
+{
+    private int StudentId;
+    private int PCExperienceYears;
+    private string HealthGroup;
+
+    public Student(int id, string name, DateOnly dateOfBirth, string gender, int computerExperience, string healthGroup)
+        : base(name, dateOfBirth, gender)
+    {
+        StudentId = id;
+        PCExperienceYears = computerExperience;
+        HealthGroup = healthGroup;
+    }
+
+    public override void DisplayInfo()
+    {
+        Console.WriteLine("СТУДЕНТ");
+        base.DisplayInfo();
+        Console.WriteLine($"ID студента: {StudentId}");
+        Console.WriteLine($"Опыт работы с ПК: {PCExperienceYears} лет");
+        Console.WriteLine($"Группа здоровья: {HealthGroup}\n");
+    }
 }
