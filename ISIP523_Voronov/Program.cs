@@ -123,7 +123,7 @@ public class VVG : Goblinoid
         MaxHealth = Health;
         Damage = 18;  // ×1.5 от базового гоблина (12)
         Defense = 6;  // ×1.2 от базового гоблина (5)
-        CritChance = 0.35; // +10% от обычного гоблина (25%)
+        CritChance = 0.35; // +10% от обычного гоблина (25%
     }
 
     public override string GetDescription()
