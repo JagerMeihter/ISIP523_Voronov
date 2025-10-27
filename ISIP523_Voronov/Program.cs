@@ -25,6 +25,47 @@ while (programRunning)
     switch (userChoice)
 
     {
+        case 3:
+            Console.WriteLine("Введите идентификатор: ");
+            int teacherId = Convert.ToInt32(Console.ReadLine());
+            if (teacherId == 0)
+            {
+                Console.WriteLine("Идентификатор не может быть пустым");
+                break;
+            }
+            Console.WriteLine("Введите полное имя: ");
+            string teacherFullName = Console.ReadLine();
+            if (string.IsNullOrEmpty(teacherFullName))
+            {
+                Console.WriteLine("Имя не может быть пустым");
+                break;
+            }
+            Console.WriteLine("Введите дату рождения: (ГГГГ,ММ,ДД)");
+            DateOnly teacherBirthDate = DateOnly.Parse(Console.ReadLine());
+            bool teacherDateValid = DateOnly.TryParse(Console.ReadLine(), out teacherBirthDate);
+            if (!teacherDateValid)
+            {
+                Console.WriteLine("Неверный формат даты");
+                break;
+            }
+            Console.WriteLine("Введите пол: ");
+            string teacherGender = Console.ReadLine();
+            if (string.IsNullOrEmpty(teacherGender))
+            {
+                Console.WriteLine("Пол не может быть пустым");
+                break;
+            }
+            Console.WriteLine("Введите стаж работы с компьютером (в годах): ");
+            int teacherComputerExperience = Convert.ToInt32(Console.ReadLine());
+            FacultyMembers.Add(new Teacher(teacherId, teacherFullName, teacherBirthDate, teacherGender, teacherComputerExperience));
+            break;
+
+        case 4:
+            foreach (var educator in FacultyMembers)
+            {
+                educator.DisplayInfo();
+            }
+            break;
 
         case 1:
             Console.WriteLine("Введите идентификатор: ");
