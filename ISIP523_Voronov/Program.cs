@@ -95,7 +95,7 @@ while (programRunning)
             string courseDescription = Console.ReadLine();
             if (string.IsNullOrEmpty(courseDescription))
             {
-                Console.WriteLine("Описание не может быть пустым");
+                Console.WriteLine("Описание не может быть пустым");//
                 break;
             }
             Console.WriteLine("Введите имя преподавателя курса: ");
