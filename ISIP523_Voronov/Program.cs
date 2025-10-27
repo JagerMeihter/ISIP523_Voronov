@@ -95,7 +95,7 @@ while (programRunning)
             string courseDescription = Console.ReadLine();
             if (string.IsNullOrEmpty(courseDescription))
             {
-                Console.WriteLine("Описание не может быть пустым");//
+                Console.WriteLine("Описание не может быть пустым");
                 break;
             }
             Console.WriteLine("Введите имя преподавателя курса: ");
@@ -127,7 +127,12 @@ while (programRunning)
             }
             break;
 
-        
+        case 6:
+            foreach (var subject in CourseCatalog)
+            {
+                subject.DisplayInfo();
+            }
+            break;
 
         case 7:
             Console.WriteLine("Введите полное имя для поиска курсов: ");
@@ -141,7 +146,20 @@ while (programRunning)
             }
             break;
 
-        
+        case 8:
+            foreach (var learner in StudentRoster)
+            {
+                learner.DisplayInfo();
+            }
+            foreach (var educator in FacultyMembers)
+            {
+                educator.DisplayInfo();
+            }
+            foreach (var subject in CourseCatalog)
+            {
+                subject.DisplayInfo();
+            }
+            break;
 
         case 0:
             programRunning = false;
