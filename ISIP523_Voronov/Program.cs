@@ -321,7 +321,7 @@ public class Undead : Enemy
 {
     public Undead(string name, int level) : base(name)
     {
-        Health = 80;
+        Health = 15;
         MaxHealth = Health;
         Damage = 15;
         Defense = 8;
@@ -363,6 +363,7 @@ public class Undead : Enemy
 
 class Program
 {
+    static int MaxHP = 50;
     static string characterName = "";
     static int Character;
     static int QuantityHP;
@@ -599,18 +600,18 @@ class Program
     static void StartTowerBattle()
     {
         Console.Clear();
-        Console.WriteLine("🏰 Вы поднимаетесь в Брошенную башню...");
+        Console.WriteLine("Вы поднимаетесь в Брошенную башню...");
         System.Threading.Thread.Sleep(1500);
 
         // Бой с обычным магом
         var mage = new Humanoid("Маг-чародей");
-        mage.Health = 70;
-        mage.MaxHealth = 70;
+        mage.Health = 20;
+        mage.MaxHealth = 20;
         mage.Damage = 12;
         mage.Defense = 8;
         mage.SpecialAbility = "❄️ Ледяная стрела";
 
-        Console.WriteLine($"\n🧙 {mage.Name} блокирует вам путь!");
+        Console.WriteLine($"\n {mage.Name} блокирует вам путь!");
         System.Threading.Thread.Sleep(1000);
 
         bool playerWon = CombatSystem(mage);
@@ -629,7 +630,7 @@ class Program
 
         if (playerWon)
         {
-            Console.WriteLine("\n🎉 Вы победили Архимага и завладели башней!");
+            Console.WriteLine("\nВы победили Архимага и завладели башней!");
             locations[2].IsCompleted = true;
             Console.WriteLine("Нажмите любую клавишу чтобы продолжить...");
             Console.ReadKey();
@@ -652,6 +653,36 @@ class Program
         Console.WriteLine("║ червей попитаете             ║");
         Console.WriteLine("╚══════════════════════════════╝");
         Console.WriteLine("\nНажмите любую клавишу чтобы вернуться в главное меню...");
+        Console.ReadKey();
+    }
+    static void UseHealthPotion()
+    {
+        // Проверяем есть ли зелье в инвентаре
+        var potion = inventory.FirstOrDefault(item => item.Contains("Зелье здоровья"));
+
+        if (potion != null)
+        {
+            // Восстанавливаем здоровье
+            int healAmount = 15;
+            int oldHealth = QuantityHP;
+            QuantityHP = Math.Min(QuantityHP + healAmount, 50); // 50 - максимальное HP
+
+            int actualHeal = QuantityHP - oldHealth;
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"Вы выпили зелье здоровья!");
+            Console.WriteLine($"Восстановлено {actualHeal} HP");
+            Console.WriteLine($"Теперь у вас {QuantityHP} HP");
+            Console.ResetColor();
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("❌ У вас нет зелья здоровья!");
+            Console.ResetColor();
+        }
+
+        Console.WriteLine("\nНажмите любую клавишу чтобы продолжить...");
         Console.ReadKey();
     }
     static bool CombatSystem(Enemy enemy)
@@ -680,11 +711,20 @@ class Program
             System.Threading.Thread.Sleep(2000);
         }
 
+        // Если игрок победил - добавляем зелье
+        if (QuantityHP > 0 && enemy.IsAlive == false)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"Вы нашли зелье здоровья у поверженного {enemy.Name}!");
+            inventory.Add("Зелье здоровья (+15 HP)");
+            Console.ResetColor();
+            System.Threading.Thread.Sleep(1500);
+        }
         return QuantityHP > 0;
     }
     static void EnemyTurn(Enemy enemy)
     {
-        Console.WriteLine($"\n🎯 Ход {enemy.Name}:");
+        Console.WriteLine($"\n Ход {enemy.Name}:");
 
         var diceRoll = Function.RollDice20();
         bool useSpecial = diceRoll > 15; // 25% шанс использовать спецспособность
@@ -708,7 +748,7 @@ class Program
             Console.ReadKey();
 
             int defenseRoll = Function.RollDice20();
-            Console.WriteLine($"🎲 Ваш бросок защиты: {defenseRoll}");
+            Console.WriteLine($" Ваш бросок защиты: {defenseRoll}");
 
             if (defenseRoll > 10) // Успешная защита
             {
@@ -716,11 +756,11 @@ class Program
                 if (damage > 0)
                 {
                     QuantityHP -= damage;
-                    Console.WriteLine($"💥 Вы получили {damage} урона");
+                    Console.WriteLine($" Вы получили {damage} урона");
                 }
                 else
                 {
-                    Console.WriteLine("🛡️ Вы отразили удар!");
+                    Console.WriteLine("🛡 Вы отразили удар!");
                 }
             }
             else
@@ -799,7 +839,7 @@ class Program
 
         if (!enemy.IsAlive)
         {
-            Console.WriteLine($"🎉 Вы победили {enemy.Name}!");
+            Console.WriteLine($" Вы победили {enemy.Name}!");
         }
     }
 
@@ -808,11 +848,11 @@ class Program
     static void StartCryptBattle()
     {
         Console.Clear();
-        Console.WriteLine("⚰️ Вы входите в Тихий склеп...");
+        Console.WriteLine(" Вы входите в Тихий склеп...");
         System.Threading.Thread.Sleep(1500);
 
         // Бой с двумя скелетами
-        Console.WriteLine("\n💀 Из-за саркофагов поднимаются два скелета!");
+        Console.WriteLine("\n Из-за саркофагов поднимаются два скелета!");
         System.Threading.Thread.Sleep(1000);
 
         var skeleton1 = new Undead("Скелет-воин", 2);
@@ -825,7 +865,7 @@ class Program
             return;
         }
 
-        Console.WriteLine("\n💀 Второй скелет атакует!");
+        Console.WriteLine("\n Второй скелет атакует!");
         playerWon = CombatSystem(skeleton2);
         if (!playerWon)
         {
@@ -855,7 +895,7 @@ class Program
 
         if (playerWon)
         {
-            Console.WriteLine("\n🎉 Вы очистили склеп от нежити!");
+            Console.WriteLine("\n Вы очистили склеп от нежити!");
             locations[1].IsCompleted = true;
             Console.WriteLine("Нажмите любую клавишу чтобы продолжить...");
             Console.ReadKey();
@@ -868,12 +908,12 @@ class Program
     static void StartForestBattle()
     {
         Console.Clear();
-        Console.WriteLine("🌳 Вы входите в Гнилой Лес...");
+        Console.WriteLine(" Вы входите в Гнилой Лес...");
         System.Threading.Thread.Sleep(1500);
 
         // Первый бой с обычным гоблином
         var goblin = new Goblinoid("Гоблин", 2);
-        Console.WriteLine($"\n🐺 На вас нападает {goblin.Name}!");
+        Console.WriteLine($"\n На вас нападает {goblin.Name}!");
         System.Threading.Thread.Sleep(1000);
 
         bool playerWon = CombatSystem(goblin);
@@ -894,7 +934,7 @@ class Program
         playerWon = CombatSystem(vvg);
         if (playerWon)
         {
-            Console.WriteLine("\n🎉 Вы победили ВВГ и очистили лес от гоблинов!");
+            Console.WriteLine("\n Вы победили ВВГ и очистили лес от гоблинов!");
             locations[0].IsCompleted = true;
             Console.WriteLine("Нажмите любую клавишу чтобы продолжить...");
             Console.ReadKey();
@@ -1031,11 +1071,12 @@ class Program
         inventory.Clear();
 
         // Добавляем стартовые предметы
-        inventory.Add("🗡️Меч    | Мой старый Герой |");
-        inventory.Add("🛡️Доспех | Мой старый Герой |");
+        inventory.Add("Меч    | Мой старый Герой |");
+        inventory.Add("Доспех | Мой старый Герой |");
+        inventory.Add("Зелье здоровья (+15 HP)");
 
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("\n🎁 Вам выданы стартовые предметы!");
+        Console.WriteLine("\nВам выданы стартовые предметы!");
         Console.ResetColor();
         System.Threading.Thread.Sleep(1500);
     }
@@ -1107,6 +1148,15 @@ class Program
             {
                 Console.WriteLine($"║ {i + 1,2}. {inventory[i],-22} ║");
             }
+            int potionCount = inventory.Count(item => item.Contains("Зелье здоровья"));
+
+            for (int i = 0; i < inventory.Count; i++)
+            {
+                Console.WriteLine($"║ {i + 1,2}. {inventory[i],-22} ║");
+            }
+
+            Console.WriteLine("╠══════════════════════════════╣");
+            Console.WriteLine($"║ Зелья здоровья: {potionCount,-12} ║");
         }
 
         Console.WriteLine("╠══════════════════════════════╣");
