@@ -13,7 +13,7 @@ public static class Function
     {
         Random random = new Random();
         return random.Next(1, 21);
-        
+
     }
 
 }
@@ -943,7 +943,7 @@ class Program
         {
             GameOver();
         }
-        
+
     }
 
     static void ShowMainMenu()
@@ -1205,7 +1205,7 @@ class Program
 
             Console.WriteLine($"{i + 1}. {location.Name} [{status}]");
             Console.WriteLine($"   {location.Description}");
-           
+
             Console.WriteLine();
         }
 
@@ -1236,7 +1236,7 @@ class Program
         Console.WriteLine($"\nВы входите в {location.Name}...");
         System.Threading.Thread.Sleep(1500);
         ContinueAdventure();
-       
+
     }
     static void ContinueAdventure()
     {
