@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36221.1 d17.14
+VisualStudioVersion = 17.14.36221.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ISIP523_Voronov", "ISIP523_Voronov\ISIP523_Voronov.csproj", "{22F497C5-CE7A-4BCF-B0DA-1C86A5F4F623}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{D3FC543C-10A3-4864-95BD-6C973B79738B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{22F497C5-CE7A-4BCF-B0DA-1C86A5F4F623}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22F497C5-CE7A-4BCF-B0DA-1C86A5F4F623}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22F497C5-CE7A-4BCF-B0DA-1C86A5F4F623}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3FC543C-10A3-4864-95BD-6C973B79738B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3FC543C-10A3-4864-95BD-6C973B79738B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3FC543C-10A3-4864-95BD-6C973B79738B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3FC543C-10A3-4864-95BD-6C973B79738B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
