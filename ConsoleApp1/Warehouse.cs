@@ -11,8 +11,16 @@ namespace ConsoleApp1
         public List<CarPart> Parts { get; set; }
         public decimal Balance { get; set; }
 
-        public void AddPart(CarPart part) { }
-        public bool HasPart(string partName) { return false; }
-        public void RemovePart(string partName) { }
+        public bool HasPart(string partName)
+        {
+            return Parts.Any(p => p.Name == partName && p.Quantity > 0);
+        }
+
+        public void RemovePart(string partName)
+        {
+            var part = Parts.FirstOrDefault(p => p.Name == partName);
+            if (part != null && part.Quantity > 0)
+                part.Quantity--;
+        }
     }
 }
